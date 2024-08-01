@@ -976,15 +976,8 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
     }
     setup(props) {
       const constructor = this.constructor.name;
-      const clientId = props.clientId;
-      if (!(clientId in acf.blockInstances)) {
-        acf.blockInstances[clientId] = {
-          validation_errors: false,
-          mode: props.mode
-        };
-      }
-      if (!(constructor in acf.blockInstances[clientId])) {
-        acf.blockInstances[clientId][constructor] = {};
+      if (!(constructor in acf.blockInstances[props.clientId])) {
+        acf.blockInstances[props.clientId][constructor] = {};
       }
     }
     fetch() {
@@ -1215,10 +1208,6 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
         acf.debug('Block does not support validation');
         return;
       }
-      if (!$formEl || $formEl.hasClass('acf-empty-block-fields')) {
-        acf.debug('There is no edit form available to validate.');
-        return;
-      }
       const errors = this.getValidationErrors();
       acf.debug('Starting handle validation', Object.assign({}, this), Object.assign({}, $formEl), errors);
       this.setShownValidation();
@@ -1318,7 +1307,7 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
       if (loadState) {
         this.loadState();
       }
-      acf.debug('BlockForm calling validate with state', Object.assign({}, this));
+      acf.debug(Object.assign({}, this));
       super.displayValidation(this.state.$el);
     }
     shouldComponentUpdate(nextProps, nextState) {
@@ -1801,23 +1790,11 @@ const md5 = __webpack_require__(/*! md5 */ "./node_modules/md5/md5.js");
    * @return string
    */
   function createBlockAttributesHash(attributes, context) {
-    attributes['_acf_context'] = sortObjectByKey(context);
-    return md5(JSON.stringify(sortObjectByKey(attributes)));
-  }
-
-  /**
-   * Key sort an object
-   *
-   * @since 6.3.1
-   *
-   * @param object toSort The object to be sorted
-   * @return object
-   */
-  function sortObjectByKey(toSort) {
-    return Object.keys(toSort).sort().reduce((acc, currValue) => {
-      acc[currValue] = toSort[currValue];
+    attributes['_acf_context'] = context;
+    return md5(JSON.stringify(Object.keys(attributes).sort().reduce((acc, currValue) => {
+      acc[currValue] = attributes[currValue];
       return acc;
-    }, {});
+    }, {})));
   }
 })(jQuery);
 
